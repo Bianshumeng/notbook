@@ -1,0 +1,21 @@
+# Build tools and dependencies
+.tools/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+*.class
+*.jar
+*.war
+*.ear
+build/
+dist/
+out/
+target/
