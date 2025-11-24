@@ -27,6 +27,7 @@ UninstallDisplayIcon="icon.ico"
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "chinesesimplified"; MessagesFile: "ChineseSimplified.isl"
 
 [Files]
 Source: "setupFiles\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs sortfilesbyextension;
