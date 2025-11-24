@@ -233,6 +233,7 @@ public class Note extends JDialog {
      * mouse coordinates.
      */
     public Note() {
+        textFontFamily = Main.getGlobalFontFamily();
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); //if alt+f4 is pressed, this will cause the windowClosing event to be fired
         addWindowListener(new WindowAdapter() {
             @Override
@@ -495,7 +496,7 @@ public class Note extends JDialog {
                 chooser.setMaximumRowCount(15);
                 int res = JOptionPane.showConfirmDialog(Note.this, chooser, getLocString("FONT_DIALOG_TITLE"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (res == JOptionPane.OK_OPTION && chooser.getSelectedItem() != null) {
-                    setTextFontFamily((String) chooser.getSelectedItem());
+                    Main.setGlobalFontFamily((String) chooser.getSelectedItem());
                     text.requestFocusInWindow();
                 }
             }

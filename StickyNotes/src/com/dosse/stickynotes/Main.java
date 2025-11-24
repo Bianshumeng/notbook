@@ -88,6 +88,7 @@ public class Main {
 
     private static final ArrayList<Note> notes = new ArrayList<Note>(); //currently open notes
     private static boolean noAutoCreate = false; //if set to true, an empty note will not be created if the app is started on an empty storage. enabled by the -autostartup parameter
+    private static String globalFontFamily; //default font for new notes
 
     /**
      * saves currently open notes to the main storage, and turns the previous
@@ -98,8 +99,9 @@ public class Main {
      * the number of notes, then for each note we have its location (Point), its
      * size (Dimension), the color scheme (Color[8]), the text (String).
      * Finally, a float for each note with the text scale for that note, then
-     * the font family (String) for each note. This data is written at the end
-     * to ensure compatibility with older versions of the program.
+     * the font family (String) for each note, and finally the global font
+     * family (String) used for new notes. This data is written at the end to
+     * ensure compatibility with older versions of the program.
      *
      * errors are ignored.
      */
@@ -140,6 +142,8 @@ public class Main {
                 for (Note n : notes) {
                     oos.writeObject(n.getTextFontFamily());
                 }
+                //global font for future notes
+                oos.writeObject(globalFontFamily);
                 oos.flush();
                 oos.close();
             } catch (Throwable t) {
@@ -176,7 +180,6 @@ public class Main {
                         note.setVisible(true);
                         notes.add(note);
                     }
-                    return true;
                 }
                 if (n < 0) {
                     return false;
@@ -200,6 +203,17 @@ public class Main {
                     }
                     for (int i = 0; i < n; i++) {
                         notes.get(i).setTextFontFamily((String) (ois.readObject()), false);
+                    }
+                    try {
+                        String gf = (String) ois.readObject();
+                        if (gf != null && gf.trim().length() > 0) {
+                            globalFontFamily = gf;
+                            for (Note note : notes) {
+                                note.setTextFontFamily(globalFontFamily, false);
+                            }
+                        }
+                    } catch (Throwable t) {
+                        globalFontFamily = BASE_FONT.getFamily();
                     }
                 } catch (Throwable t) {
                 }
@@ -356,6 +370,24 @@ public class Main {
         float dpi = (float) Toolkit.getDefaultToolkit().getScreenResolution();
         return (dpi < 64 ? 64 : dpi) / 80f;
     }
+
+    public static synchronized void setGlobalFontFamily(String family) {
+        if (family == null || family.trim().length() == 0) {
+            globalFontFamily = BASE_FONT.getFamily();
+        } else {
+            globalFontFamily = family;
+        }
+        synchronized (notes) {
+            for (Note n : notes) {
+                n.setTextFontFamily(globalFontFamily, false);
+            }
+        }
+        saveState();
+    }
+
+    public static synchronized String getGlobalFontFamily() {
+        return globalFontFamily;
+    }
     public static final float SCALE = calculateScale(); //used for DPI scaling. multiply each size by this factor.
     public static final float TEXT_SIZE = 12f * SCALE, TEXT_SIZE_SMALL = 11f * SCALE, BUTTON_TEXT_SIZE = 11f * SCALE; //default text sizes. used for DPI scaling
     /**
@@ -364,6 +396,9 @@ public class Main {
     public static final Font BASE_FONT = chooseUiFont(loadFont("/com/dosse/stickynotes/fonts/OpenSans-Regular-Twemoji.ttf"), TEXT_SIZE, false),
             SMALL_FONT = BASE_FONT.deriveFont(Font.PLAIN, TEXT_SIZE_SMALL),
             BUTTON_FONT = chooseUiFont(loadFont("/com/dosse/stickynotes/fonts/OpenSans-Bold.ttf"), BUTTON_TEXT_SIZE, true);
+    static {
+        globalFontFamily = BASE_FONT.getFamily();
+    }
     /**
      * colors for swing MetalTheme
      */
